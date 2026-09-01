@@ -101,6 +101,23 @@ if not folder_path.strip():
 workspace.workspace_dir(folder_path)  # ensures it exists
 st.caption(f"Saving to: `{Path(folder_path).expanduser()}`")
 
+with st.expander("Running this on the hosted (cloud) version? Read this — it affects whether your data survives"):
+    st.markdown(
+        "**If you're running this on your own computer** (`streamlit run app.py`), the folder path "
+        "above is real — everything saved there stays there permanently, exactly as expected.\n\n"
+        "**If you're using a hosted/cloud link** (e.g. a `*.streamlit.app` URL), that folder path lives "
+        "on a remote server, not your computer — and it gets wiped whenever the app restarts or "
+        "redeploys. To carry your shortlist between cloud sessions: **download your Excel sheet before "
+        "closing the tab**, then upload it back here next time using the box below."
+    )
+    restore_upload = st.file_uploader(
+        "Continue from a previously downloaded main_matches.xlsx", type=["xlsx"], key="restore_upload",
+    )
+    if restore_upload is not None:
+        workspace.restore_main_sheet_from_upload(folder_path, restore_upload)
+        st.success("Restored — your shortlist below now reflects the uploaded file.")
+        st.rerun()
+
 tab_search, tab_tailor = st.tabs(["Search & Select", "Tailor Resumes"])
 
 # ------------------------------------------------------------------ SEARCH TAB

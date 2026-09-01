@@ -63,6 +63,28 @@ def save_main_sheet(folder_path: str, df: pd.DataFrame):
     df.to_excel(path, index=False)
 
 
+def restore_main_sheet_from_upload(folder_path: str, uploaded_file) -> pd.DataFrame:
+    """
+    For the hosted (cloud) version, where a 'folder path' is on a remote
+    server that gets wiped on restart, not on your own computer: lets you
+    upload a main_matches.xlsx you downloaded earlier to pick up exactly
+    where you left off. Writes it into this session's working folder so
+    every other function (load_main_sheet, save_selected_jobs, etc.)
+    works unchanged, as if it had always been there.
+    """
+    df = pd.read_excel(uploaded_file)
+    text_cols = [
+        "Title", "Company", "Location", "Remote", "Source", "Skills Matched",
+        "AI Reasoning", "Description", "Apply Link", "Search Titles",
+        "Found At", "Resume Status",
+    ]
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].fillna("").astype(str)
+    save_main_sheet(folder_path, df)
+    return df
+
+
 def save_selected_jobs(folder_path: str, selected_jobs: list, search_titles: list, found_at: str) -> pd.DataFrame:
     """
     Adds ONLY the jobs passed in (already filtered to the ones checked in
